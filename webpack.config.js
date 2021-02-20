@@ -1,4 +1,6 @@
 const path = require('path');
+
+const CopyPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
@@ -24,6 +26,11 @@ module.exports = {
   },
   plugins: [
     new CleanWebpackPlugin(),
+    new CopyPlugin({
+      patterns: [
+        { from: './src/assets', to: 'assets' },
+      ],
+    }),
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: './src/index.html'
