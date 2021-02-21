@@ -1,4 +1,4 @@
-import { PLAYER_SIZE, PLAYER_SPEED, IMAGE_NAMES } from "./constants";
+import { GRID_WIDTH, PLAYER_SPEED, IMAGE_NAMES, MAP_WIDTH, MAP_HEIGHT } from "./constants";
 
 export type Point = {
     x: number,
@@ -33,8 +33,8 @@ export type GameObject = {
 export class Game {
     public player: Player = {
         location: {
-            x: 0,
-            y: 0,
+            x: 1,
+            y: 1,
         },
         facingDirection: 'front',
     };
@@ -50,7 +50,7 @@ export class Game {
         let target_x = target.x + 0.5;
         let target_y = target.y + 0.5;
         for (let obj of this.gameObjects) {
-            
+
             if (obj.collision === undefined) {
                 continue;
             }
@@ -94,7 +94,7 @@ export class Game {
             y: this.player.location.y + dy * PLAYER_SPEED,
         }
 
-        if (!this.illegalStep(next)){
+        if (!this.illegalStep(next)) {
             // console.log("Move");
             this.player.location.x = next.x;
             this.player.location.y = next.y;
@@ -166,6 +166,79 @@ export class Game {
                 }
                 gameObjects.push(dryer);
             }
+        }
+
+        // add Top/Bottom fences
+        for (let i = 0; i < MAP_WIDTH; i += 1) {
+            let fenceTop = {
+                location: {
+                    x: i,
+                    y: 0,
+                },
+                width: 1,
+                height: 1,
+                image: IMAGE_NAMES.environmentFenceHorizontal,
+                collision: {
+                    x0: i,
+                    y0: 0,
+                    width: 1,
+                    height: 1,
+                }
+            }
+            let fenceBot = {
+                location: {
+                    x: i,
+                    y: MAP_HEIGHT-1,
+                },
+                width: 1,
+                height: 1,
+                image: IMAGE_NAMES.environmentFenceHorizontal,
+                collision: {
+                    x0: i,
+                    y0: MAP_HEIGHT-1,
+                    width: 1,
+                    height: 1,
+                }
+            }
+            gameObjects.push(fenceTop);
+            gameObjects.push(fenceBot);
+        }
+
+        
+        // add side fences
+        for (let i = 0; i < MAP_HEIGHT; i += 1) {
+            let fenceLeft = {
+                location: {
+                    x: 0,
+                    y: i,
+                },
+                width: 1,
+                height: 1,
+                image: IMAGE_NAMES.environmentFenceLeft,
+                collision: {
+                    x0: 0,
+                    y0: i,
+                    width: 0.2,
+                    height: 1,
+                }
+            }
+            let fenceRight = {
+                location: {
+                    x: MAP_WIDTH-1,
+                    y: i,
+                },
+                width: 1,
+                height: 1,
+                image: IMAGE_NAMES.environmentFenceRight,
+                collision: {
+                    x0: MAP_WIDTH-0.2,
+                    y0: i,
+                    width: 0.2,
+                    height: 1,
+                }
+            }
+            gameObjects.push(fenceLeft);
+            gameObjects.push(fenceRight);
         }
 
         // add truck
