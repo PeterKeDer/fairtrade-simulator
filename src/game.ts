@@ -187,6 +187,8 @@ class Truck implements Interactable {
                 this.game.dialogues = [`Hmm... You sold some coffee beans for $${profit}.`];
             }
             this.game.numDriedCoffee = 0;
+        } else {
+            this.game.dialogues = ["Oops... You don't have any dried coffee beans to sell."]
         }
     }
 }
@@ -208,7 +210,7 @@ export class Game {
 
     public gameObjects: Array<GameObject>;
 
-    public dialogues: string[] = [];
+    public dialogues: string[] = ["You live the life of a member in a small coffee farm.", "You and your team are failing to compete with larger plantations and have difficulty improving your lifestyle/farm,", "since your customers are limited to locals and few traders will buy your product at market price.", "What is going to happen to you?"];
 
     public pause: boolean = false;
 
@@ -248,12 +250,11 @@ export class Game {
     /// Process player movement
     public process(movement: Movement, interact: boolean) {
         if (this.darkOverlay !== undefined) {
-            this.darkOverlay += 0.03;
-            if (this.darkOverlay > 0.7) {
+            this.darkOverlay -= 0.02;
+            if (this.darkOverlay < 0) {
                 this.darkOverlay = undefined;
-                this.showEndDayScreen();
-                return;
             }
+            return;
         }
 
         if (this.pause) return;
@@ -331,10 +332,6 @@ export class Game {
         if (this.isFairTrade) {
             this.money += 10;
         }
-        this.darkOverlay = 0;
-    }
-
-    public showEndDayScreen() {
         document.getElementById('canvas').hidden = true;
         document.getElementById('end-of-day').hidden = false;
         document.getElementById('bg').hidden = false;
@@ -390,7 +387,7 @@ export class Game {
         if (this.day === 3) {
             this.isFairTrade = true;
             this.truck.image = IMAGE_NAMES.environmentTruckFairTrade;
-            this.dialogues = ["Welcome to Fairtrade!"];
+            this.dialogues = ["Your farm has partnered with Fairtrade!","The arrival of Fairtrade means that your farm has access to international markets", "and receives at least the stable minimum price set by Fairtrade,", "along with additional premiums that can go towards farm investments or education."];
         }
 
         // hack
@@ -398,6 +395,8 @@ export class Game {
         setTimeout(() => {
             this.pause = false;
         }, 100);
+
+        this.darkOverlay = 1.5;
     }
 
     private populateGameObjectsArray() {
