@@ -56,7 +56,7 @@ export class Game {
             },
             width: 6,
             height: 4,
-            image: "House_(tier_1).webp"
+            image: ""
         };
         gameObjects.push(house);
 
@@ -70,7 +70,7 @@ export class Game {
                     },
                     width: 1,
                     height: 1,
-                    image: "coffee_plant.png",
+                    image: "",
                 }
                 gameObjects.push(plant);
             }
