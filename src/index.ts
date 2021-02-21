@@ -150,6 +150,12 @@ function render() {
         context.fillStyle = 'black';
         context.fillText(game.dialogues[0], 2 * margin, startY + 2 * margin, canvas.width - 4 * margin);
     }
+
+    if (game.darkOverlay !== undefined) {
+        context.fillStyle = 'black';
+        context.globalAlpha = game.darkOverlay;
+        context.fillRect(0, 0, canvas.width, canvas.height);
+    }
 }
 
 /// Calculate the player's current position on the canvas, from the grid location

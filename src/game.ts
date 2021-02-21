@@ -1,4 +1,4 @@
-import { GRID_WIDTH, PLAYER_SPEED, IMAGE_NAMES, MAP_WIDTH, MAP_HEIGHT, FENCE_OFF_SET } from "./constants";
+import { GRID_WIDTH, PLAYER_SPEED, IMAGE_NAMES, MAP_WIDTH, MAP_HEIGHT, FENCE_OFF_SET, FPS } from "./constants";
 
 export type Point = {
     x: number,
@@ -131,38 +131,7 @@ class House implements Interactable {
     onInteract() {
         this.game.pause = true;
         if (confirm("End your day?")) {
-            document.getElementById('canvas').hidden = true;
-            document.getElementById('end-of-day').hidden = false;
-            document.getElementById('bg').hidden = false;
-
-            document.getElementById('balance-label').innerText = `Balance: \$${this.game.money}`;
-
-            document.getElementById('nextday').onclick = () => {
-                let cost = 0;
-                if ((document.getElementById('food') as HTMLInputElement).checked) {
-                    cost += 1;
-                }
-                if ((document.getElementById('housing') as HTMLInputElement).checked) {
-                    cost += 1;
-                }
-                if ((document.getElementById('improvements') as HTMLInputElement).checked) {
-                    cost += 100;
-                }
-                if ((document.getElementById('education') as HTMLInputElement).checked) {
-                    cost += 100;
-                }
-                if (cost > this.game.money) {
-                    alert("Not enough fund.");
-                } else {
-                    this.game.money -= cost;
-
-                    document.getElementById('canvas').hidden = false;
-                    document.getElementById('end-of-day').hidden = true;
-                    document.getElementById('bg').hidden = true;
-
-                    this.game.nextDay();
-                }
-            };
+            this.game.endDay();
         } else {
             this.game.pause = false;
         }
@@ -209,11 +178,11 @@ class Truck implements Interactable {
     onInteract() {
         if (this.game.numDriedCoffee >= 1) {
             if (this.game.isFairTrade) {
-                const profit = this.game.numDriedCoffee * 1.5;
+                const profit = this.game.numDriedCoffee * 1;
                 this.game.money += profit;
-                this.game.dialogues = [`Woaw! You sold some coffee beans for $${profit}.`, "In addition to $10 minimum wage!"];
+                this.game.dialogues = [`Woaw! You sold some coffee beans for $${profit}.`, "In addition to $10 minimum wage per day!"];
             } else {
-                const profit = this.game.numDriedCoffee * 0.5;
+                const profit = this.game.numDriedCoffee * 0.25;
                 this.game.money += profit;
                 this.game.dialogues = [`Hmm... You sold some coffee beans for $${profit}.`];
             }
@@ -231,20 +200,19 @@ export class Game {
         facingDirection: 'front',
         isWatering: false,
     };
+    public numHarvestedCoffee: number = 0;
+    public numDriedCoffee: number = 0;
+    public isFairTrade: boolean = false;
+    public money: number = 3;
+    public day: number = 1;
+
     public gameObjects: Array<GameObject>;
 
     public dialogues: string[] = [];
 
-    public numHarvestedCoffee: number = 0;
-    public numDriedCoffee: number = 0;
-
-    public isFairTrade: boolean = false;
-
-    public money: number = 2;
-
     public pause: boolean = false;
 
-    public day: number = 1;
+    public darkOverlay?: number;
 
     private truck: GameObject;
 
@@ -279,6 +247,15 @@ export class Game {
 
     /// Process player movement
     public process(movement: Movement, interact: boolean) {
+        if (this.darkOverlay !== undefined) {
+            this.darkOverlay += 0.03;
+            if (this.darkOverlay > 0.7) {
+                this.darkOverlay = undefined;
+                this.showEndDayScreen();
+                return;
+            }
+        }
+
         if (this.pause) return;
 
         if (this.dialogues.length > 0) {
@@ -348,6 +325,48 @@ export class Game {
 
     public startPlayerShaking() {
         this.player.shakeAnimation = 0;
+    }
+
+    public endDay() {
+        if (this.isFairTrade) {
+            this.money += 10;
+        }
+        this.darkOverlay = 0;
+    }
+
+    public showEndDayScreen() {
+        document.getElementById('canvas').hidden = true;
+        document.getElementById('end-of-day').hidden = false;
+        document.getElementById('bg').hidden = false;
+
+        document.getElementById('balance-label').innerText = `Balance: \$${this.money}`;
+
+        document.getElementById('nextday').onclick = () => {
+            let cost = 0;
+            if ((document.getElementById('food') as HTMLInputElement).checked) {
+                cost += 1;
+            }
+            if ((document.getElementById('housing') as HTMLInputElement).checked) {
+                cost += 2;
+            }
+            if ((document.getElementById('improvements') as HTMLInputElement).checked) {
+                cost += 100;
+            }
+            if ((document.getElementById('education') as HTMLInputElement).checked) {
+                cost += 125;
+            }
+            if (cost > this.money) {
+                alert("Not enough fund.");
+            } else {
+                this.money -= cost;
+
+                document.getElementById('canvas').hidden = false;
+                document.getElementById('end-of-day').hidden = true;
+                document.getElementById('bg').hidden = true;
+
+                this.nextDay();
+            }
+        };
     }
 
     public nextDay() {
