@@ -66,7 +66,7 @@ class CoffeePlant implements Interactable {
                 break;
             case 'harvested':
                 this.state = 'watered';
-                this.dirt.image = IMAGE_NAMES.texutreWetDirt;
+                this.dirt.image = IMAGE_NAMES.textureWetDirt;
                 this.game.player.isWatering = true;
                 this.game.startPlayerShaking();
                 break;
