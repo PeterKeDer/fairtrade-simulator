@@ -1,7 +1,7 @@
 import { FPS, PLAYER_SIZE, MAP_HEIGHT, MAP_WIDTH, GRID_WIDTH } from './constants';
 import { Controller } from './controller';
 import { Game, Point } from './game';
-import { drawTreeArray, displayText, displayHouse, displayGeneral, displayFenceLeft } from './environment';
+import { drawTreeArray, displayText, displayHouse, displayGeneral, displayFenceLeft, displayTruck } from './environment';
 
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 const context = canvas.getContext('2d');
@@ -40,6 +40,10 @@ function render() {
     
     var fenceLeft = calculatePosition({x: 0, y:1})
     displayFenceLeft(fenceLeft.x, fenceLeft.y, context);
+
+    
+    var TruckPos = calculatePosition({x: 10, y:1})
+    displayTruck(TruckPos.x, TruckPos.y, context);
     // drawTreeArray(treePos.x, treePos.y, context);
     // drawTreeArray(50, 400, context);
     // displayText(game.player.location.x, game.player.location.y, context);

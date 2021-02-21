@@ -20,6 +20,8 @@ var fenceLImg = new Image();
 fenceLImg.src = 'assets/fenceL.png'
 var fenceRImg = new Image();
 fenceRImg.src = 'assets/fenceR.png'
+var truckCaptital = new Image();
+truckCaptital.src = 'assets/truckCaptital.png'
 
 function displayHitBox(context: CanvasRenderingContext2D) {
     console.log(hitBoxArray);
@@ -99,5 +101,11 @@ export function displayFenceLeft(x: number, y: number, context: CanvasRenderingC
     for (let i = 0; i < 19; i++) {
         context.drawImage(fenceRImg, x+64*29, y+64*i, 64, 64);
     }
+}
+
+
+export function displayTruck(x: number, y: number, context: CanvasRenderingContext2D) {
+    context.imageSmoothingEnabled = false;
+    context.drawImage(truckCaptital, x, y, 1024, 512);
 }
 
