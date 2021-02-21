@@ -76,7 +76,7 @@
 </style>
 
 <body style="margin: 0">
-    <!-- <div class="dialogue" style="z-index: 1">
+    <div id="end-of-day" class="dialogue" style="z-index: 1" hidden>
         <h1>Shop</h1>
 
         <div class="menu">
@@ -108,12 +108,12 @@
         </div>
 
         <div class="bottom">
-            <div>Balance: $0.50</div>
-            <button class="button nextday">Next Day</button>
+            <div id="balance-label">Balance: $0.50</div>
+            <button id="nextday" class="button nextday">Next Day</button>
         </div>
-        
+
     </div>
-    <div class="bg" style="z-index: 2"></div> -->
+    <div id="bg" class="bg" style="z-index: 2" hidden></div>
     <canvas id="canvas"></canvas>
 </body>
 

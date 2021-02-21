@@ -46,7 +46,7 @@ class CoffeePlant implements Interactable {
     height: number;
     state: 'unharvested' | 'harvested' | 'watered';
 
-    constructor(private game: Game, private object: GameObject, private dirt: GameObject) {
+    constructor(private game: Game, private object: GameObject, public dirt: GameObject) {
         this.state = 'unharvested';
         this.location = {
             x: object.location.x - 0.5,
@@ -114,6 +114,61 @@ class CoffeeRack implements Interactable {
     }
 }
 
+class House implements Interactable {
+    location: Point;
+    width: number;
+    height: number;
+
+    constructor(private game: Game, object: GameObject) {
+        this.location = {
+            x: object.location.x + 1.5,
+            y: object.location.y + 1.5,
+        }
+        this.width = 1.5;
+        this.height = 1;
+    }
+
+    onInteract() {
+        this.game.pause = true;
+        if (confirm("End your day?")) {
+            document.getElementById('canvas').hidden = true;
+            document.getElementById('end-of-day').hidden = false;
+            document.getElementById('bg').hidden = false;
+
+            document.getElementById('balance-label').innerText = `Balance: \$${this.game.money}`;
+
+            document.getElementById('nextday').onclick = () => {
+                let cost = 0;
+                if ((document.getElementById('food') as HTMLInputElement).checked) {
+                    cost += 1;
+                }
+                if ((document.getElementById('housing') as HTMLInputElement).checked) {
+                    cost += 1;
+                }
+                if ((document.getElementById('improvements') as HTMLInputElement).checked) {
+                    cost += 100;
+                }
+                if ((document.getElementById('education') as HTMLInputElement).checked) {
+                    cost += 100;
+                }
+                if (cost > this.game.money) {
+                    alert("Not enough fund.");
+                } else {
+                    this.game.money -= cost;
+
+                    document.getElementById('canvas').hidden = false;
+                    document.getElementById('end-of-day').hidden = true;
+                    document.getElementById('bg').hidden = true;
+
+                    this.game.nextDay();
+                }
+            };
+        } else {
+            this.game.pause = false;
+        }
+    }
+}
+
 class NPC implements Interactable {
     location: Point;
     width: number;
@@ -137,6 +192,36 @@ class NPC implements Interactable {
     }
 }
 
+class Truck implements Interactable {
+    location: Point;
+    width: number;
+    height: number;
+
+    constructor(private game: Game, object: GameObject) {
+        this.location = {
+            x: object.location.x - 0.5,
+            y: object.location.y - 0.5,
+        }
+        this.width = 7;
+        this.height = 4;
+    }
+
+    onInteract() {
+        if (this.game.numDriedCoffee >= 1) {
+            if (this.game.isFairTrade) {
+                const profit = this.game.numDriedCoffee * 1.5;
+                this.game.money += profit;
+                this.game.dialogues = [`Woaw! You sold some coffee beans for $${profit}.`, "In addition to $10 minimum wage!"];
+            } else {
+                const profit = this.game.numDriedCoffee * 0.5;
+                this.game.money += profit;
+                this.game.dialogues = [`Hmm... You sold some coffee beans for $${profit}.`];
+            }
+            this.game.numDriedCoffee = 0;
+        }
+    }
+}
+
 export class Game {
     public player: Player = {
         location: {
@@ -155,13 +240,20 @@ export class Game {
 
     public isFairTrade: boolean = false;
 
+    public money: number = 2;
+
+    public pause: boolean = false;
+
+    public day: number = 1;
+
+    private truck: GameObject;
+
     constructor() {
         this.populateGameObjectsArray();
     }
 
     // Check if the movement is legal
     public illegalStep(target: Point) {
-        console.log(target);
         let target_x = target.x + 0.5;
         let target_y = target.y + 0.5;
         for (let obj of this.gameObjects) {
@@ -187,6 +279,8 @@ export class Game {
 
     /// Process player movement
     public process(movement: Movement, interact: boolean) {
+        if (this.pause) return;
+
         if (this.dialogues.length > 0) {
             if (interact) {
                 this.dialogues.splice(0, 1);
@@ -194,7 +288,6 @@ export class Game {
             return;
         }
 
-        // TODO: probably add cooldown to interaction? where player is locked in place
         if (this.player.shakeAnimation !== undefined) {
             this.player.shakeAnimation += 0.2 * Math.PI;
             if (this.player.shakeAnimation > 6 * Math.PI) {
@@ -257,6 +350,37 @@ export class Game {
         this.player.shakeAnimation = 0;
     }
 
+    public nextDay() {
+        this.pause = false;
+
+        for (let obj of this.gameObjects) {
+            if (obj.interaction !== undefined) {
+                const interaction = obj.interaction;
+                if (interaction instanceof CoffeePlant && interaction.state === 'watered') {
+                    interaction.state = 'unharvested';
+                    interaction.dirt.image = IMAGE_NAMES.textureDirt;
+                    obj.image = IMAGE_NAMES.coffeePlantBerries;
+                } else if (interaction instanceof CoffeeRack && interaction.state === 'drying') {
+                    interaction.state = 'dried';
+                    obj.image = IMAGE_NAMES.coffeeRackDried;
+                }
+            }
+        }
+
+        this.day++;
+        if (this.day === 3) {
+            this.isFairTrade = true;
+            this.truck.image = IMAGE_NAMES.environmentTruckFairTrade;
+            this.dialogues = ["Welcome to Fairtrade!"];
+        }
+
+        // hack
+        this.pause = true;
+        setTimeout(() => {
+            this.pause = false;
+        }, 100);
+    }
+
     private populateGameObjectsArray() {
         let gameObjects: Array<GameObject> = [];
 
@@ -282,7 +406,7 @@ export class Game {
             x: 20,
             y: 2,
         }
-        let house = {
+        let house: GameObject = {
             location: {
                 x: houseLocation.x,
                 y: houseLocation.y,
@@ -297,6 +421,8 @@ export class Game {
                 height: 2,
             }
         };
+        let housei = new House(this, house);
+        house.interaction = housei;
         gameObjects.push(house);
 
         // add coffee plants and dirt
@@ -469,14 +595,14 @@ export class Game {
         }
 
         // add truck
-        let truck = {
+        let truck: GameObject = {
             location: {
                 x: 10,
                 y: 1.2,
             },
             width: 6,
             height: 3,
-            image: IMAGE_NAMES.environmentTruckFairTrade,
+            image: IMAGE_NAMES.environmentTruckCapital,
             collision: {
                 x0: 10,
                 y0: 2.2,
@@ -484,6 +610,9 @@ export class Game {
                 height: 2,
             }
         };
+        this.truck = truck;
+        let trucki = new Truck(this, truck);
+        truck.interaction = trucki;
         gameObjects.push(truck);
 
         // add npcs
@@ -503,7 +632,7 @@ export class Game {
             }
         }
         let npc1i = new NPC(this, npc1, {
-            fairTrade: ["With Fairtrade’s bonus premiums, we can finally start investing back into our farm and in our children’s educations!"],
+            fairTrade: ["With Fairtrade’s bonus premiums,", "we can finally start investing back into our farm and in our children’s educations!"],
             nonFairTrade: ["Another day of barely scraping by.", "It’s impossible to save money under these conditions..."],
         });
         npc1.interaction = npc1i;
