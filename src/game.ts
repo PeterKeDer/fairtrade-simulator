@@ -8,6 +8,8 @@ export type Point = {
 export type Player = {
     location: Point,
     facingDirection: 'front' | 'back' | 'left' | 'right',
+    shakeAnimation?: number,
+    isWatering: boolean,
 };
 
 export type Movement = {
@@ -52,10 +54,13 @@ class CoffeePlant implements Interactable {
                 this.state = 'harvested';
                 this.game.numHarvestedCoffee++;
                 this.object.image = IMAGE_NAMES.coffeePlant;
+                this.game.startPlayerShaking();
                 break;
             case 'harvested':
-                // TODO: player animation
+                // TODO: change tile
                 this.state = 'watered';
+                this.game.player.isWatering = true;
+                this.game.startPlayerShaking();
                 break;
             case 'watered':
                 break;
@@ -86,6 +91,7 @@ class CoffeeRack implements Interactable {
                     this.game.numHarvestedCoffee -= 4;
                     this.state = 'drying';
                     this.object.image = IMAGE_NAMES.coffeeRackDrying;
+                    this.game.startPlayerShaking();
                 }
                 break;
             case 'drying':
@@ -94,6 +100,7 @@ class CoffeeRack implements Interactable {
                 this.game.numDriedCoffee += 4;
                 this.state = 'empty';
                 this.object.image = IMAGE_NAMES.coffeeRack;
+                this.game.startPlayerShaking();
                 break;
         }
     }
@@ -106,6 +113,7 @@ export class Game {
             y: 0,
         },
         facingDirection: 'front',
+        isWatering: false,
     };
     public gameObjects: Array<GameObject>;
 
@@ -119,7 +127,14 @@ export class Game {
     /// Process player movement
     public process(movement: Movement, interact: boolean) {
         // TODO: probably add cooldown to interaction? where player is locked in place
-        if (interact) {
+        if (this.player.shakeAnimation !== undefined) {
+            this.player.shakeAnimation += 0.2 * Math.PI;
+            if (this.player.shakeAnimation > 6 * Math.PI) {
+                this.player.shakeAnimation = undefined;
+                this.player.isWatering = false;
+            }
+
+        } else if (interact) {
             const playerCenterX = this.player.location.x + 0.5;
             const playerCenterY = this.player.location.y + 0.5;
             for (let obj of this.gameObjects) {
@@ -135,27 +150,33 @@ export class Game {
                     }
                 }
             }
+
+        } else {
+            // Move
+            let { dx, dy } = movement;
+
+            if (dx === 1 && dy === 0 || dx === 1 && this.player.facingDirection === 'right') {
+                this.player.facingDirection = 'right';
+            } else if (dx === -1 && dy === 0 || dx === -1 && this.player.facingDirection === 'left') {
+                this.player.facingDirection = 'left';
+            } else if (dx === 0 && dy === 1 || dy === 1 && this.player.facingDirection === 'front') {
+                this.player.facingDirection = 'front';
+            } else if (dx === 0 && dy === -1 || dy === -1 && this.player.facingDirection === 'back') {
+                this.player.facingDirection = 'back';
+            }
+
+            if (Math.abs(dx) !== 0 && Math.abs(dy) !== 0) {
+                dx /= Math.SQRT2;
+                dy /= Math.SQRT2;
+            }
+
+            this.player.location.x += dx * PLAYER_SPEED;
+            this.player.location.y += dy * PLAYER_SPEED;
         }
+    }
 
-        let { dx, dy } = movement;
-
-        if (dx === 1 && dy === 0 || dx === 1 && this.player.facingDirection === 'right') {
-            this.player.facingDirection = 'right';
-        } else if (dx === -1 && dy === 0 || dx === -1 && this.player.facingDirection === 'left') {
-            this.player.facingDirection = 'left';
-        } else if (dx === 0 && dy === 1 || dy === 1 && this.player.facingDirection === 'front') {
-            this.player.facingDirection = 'front';
-        } else if (dx === 0 && dy === -1 || dy === -1 && this.player.facingDirection === 'back') {
-            this.player.facingDirection = 'back';
-        }
-
-        if (Math.abs(dx) !== 0 && Math.abs(dy) !== 0) {
-            dx /= Math.SQRT2;
-            dy /= Math.SQRT2;
-        }
-
-        this.player.location.x += dx * PLAYER_SPEED;
-        this.player.location.y += dy * PLAYER_SPEED;
+    public startPlayerShaking() {
+        this.player.shakeAnimation = 0;
     }
 
     private populateGameObjectsArray() {

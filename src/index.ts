@@ -79,22 +79,43 @@ function render() {
 
     // Draw player
     let imageName;
-    switch (game.player.facingDirection) {
-        case 'front':
-            imageName = IMAGE_NAMES.farmerFront;
-            break;
-        case 'back':
-            imageName = IMAGE_NAMES.farmerBack;
-            break;
-        case 'left':
-            imageName = IMAGE_NAMES.farmerLeft;
-            break;
-        case 'right':
-            imageName = IMAGE_NAMES.farmerRight;
-            break;
+    if (!game.player.isWatering) {
+        switch (game.player.facingDirection) {
+            case 'front':
+                imageName = IMAGE_NAMES.farmerFront;
+                break;
+            case 'back':
+                imageName = IMAGE_NAMES.farmerBack;
+                break;
+            case 'left':
+                imageName = IMAGE_NAMES.farmerLeft;
+                break;
+            case 'right':
+                imageName = IMAGE_NAMES.farmerRight;
+                break;
+        }
+    } else {
+        switch (game.player.facingDirection) {
+            case 'front':
+                imageName = IMAGE_NAMES.farmerWaterFront;
+                break;
+            case 'back':
+                imageName = IMAGE_NAMES.farmerWaterBack;
+                break;
+            case 'left':
+                imageName = IMAGE_NAMES.farmerWaterLeft;
+                break;
+            case 'right':
+                imageName = IMAGE_NAMES.farmerWaterRight;
+                break;
+        }
     }
     context.imageSmoothingEnabled = false;
-    context.drawImage(images[imageName], playerPosition.x, playerPosition.y, GRID_WIDTH, GRID_WIDTH);
+    if (game.player.shakeAnimation === undefined) {
+        context.drawImage(images[imageName], playerPosition.x, playerPosition.y, GRID_WIDTH, GRID_WIDTH);
+    } else {
+        context.drawImage(images[imageName], playerPosition.x, playerPosition.y + GRID_WIDTH * 0.03 * Math.sin(game.player.shakeAnimation), GRID_WIDTH, GRID_WIDTH);
+    }
 }
 
 /// Calculate the player's current position on the canvas, from the grid location
