@@ -21,4 +21,9 @@ export const IMAGE_NAMES = {
     farmerWaterBack: 'farmer/farmer_water_back.png',
     farmerWaterLeft: 'farmer/farmer_water_left.png',
     farmerWaterRight: 'farmer/farmer_water_right.png',
+    environmentFenceHorizontal: 'environment/fenceH.png',
+    environmentFenceLeft: 'environment/fenceL.png',
+    environmentFenceRight: 'environment/fenceR.png',
+    environmentTruckCapital: 'environment/truckCapital.png',
+    environmentTruckFairTrade: 'environment/truckFairTrade.png',
 };

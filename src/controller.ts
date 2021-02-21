@@ -6,6 +6,8 @@ export class Controller {
     private keySDown = false;
     private keyDDown = false;
 
+    private keyEPressed = false;
+
     constructor() {
         document.addEventListener('keydown', this.onKeyDown);
         document.addEventListener('keyup', this.onKeyUp);
@@ -20,6 +22,14 @@ export class Controller {
         if (this.keyDDown) dx += 1;
 
         return { dx, dy };
+    }
+
+    public getInteract(): boolean {
+        if (this.keyEPressed) {
+            this.keyEPressed = false;
+            return true;
+        }
+        return false;
     }
 
     onKeyDown = (event: KeyboardEvent) => {
@@ -52,6 +62,9 @@ export class Controller {
                 break;
             case 'd':
                 this.keyDDown = false;
+                break;
+            case 'e':
+                this.keyEPressed = true;
                 break;
         }
     }
