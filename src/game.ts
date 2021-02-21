@@ -114,6 +114,29 @@ class CoffeeRack implements Interactable {
     }
 }
 
+class NPC implements Interactable {
+    location: Point;
+    width: number;
+    height: number;
+
+    constructor(private game: Game, object: GameObject, private dialogues: { nonFairTrade: string[], fairTrade: string[]}) {
+        this.location = {
+            x: object.location.x - 0.5,
+            y: object.location.y - 0.5,
+        }
+        this.width = 2;
+        this.height = 2;
+    }
+
+    onInteract() {
+        if (this.game.isFairTrade) {
+            this.game.dialogues = [...this.dialogues.fairTrade];
+        } else {
+            this.game.dialogues = [...this.dialogues.nonFairTrade];
+        }
+    }
+}
+
 export class Game {
     public player: Player = {
         location: {
@@ -125,10 +148,12 @@ export class Game {
     };
     public gameObjects: Array<GameObject>;
 
-    public dialogues: string[] = ['very cool', 'dialogue tests', 'xd'];
+    public dialogues: string[] = [];
 
     public numHarvestedCoffee: number = 0;
     public numDriedCoffee: number = 0;
+
+    public isFairTrade: boolean = false;
 
     constructor() {
         this.populateGameObjectsArray();
@@ -409,7 +434,7 @@ export class Game {
             gameObjects.push(fenceRight);
         }
 
-        // Placehold air wall 
+        // Placehold air wall
         for (let i = 1; i < 4; i += 1) {
             let fenceLeft = {
                 location: {
@@ -462,24 +487,29 @@ export class Game {
         gameObjects.push(truck);
 
         // add npcs
-        let npc1 = {
+        let npc1: GameObject = {
             location: {
-                x: 3,
+                x: 9,
                 y: 11,
             },
             width: 1,
             height: 1,
             image: IMAGE_NAMES.npc1,
             collision: {
-                x0: 3,
-                y0: 11,
-                width: 1,
-                height: 1,
+                x0: 9.25,
+                y0: 11.25,
+                width: 0.5,
+                height: 0.5,
             }
         }
+        let npc1i = new NPC(this, npc1, {
+            fairTrade: ["With Fairtrade’s bonus premiums, we can finally start investing back into our farm and in our children’s educations!"],
+            nonFairTrade: ["Another day of barely scraping by.", "It’s impossible to save money under these conditions..."],
+        });
+        npc1.interaction = npc1i;
         gameObjects.push(npc1);
 
-        let npc2 = {
+        let npc2: GameObject = {
             location: {
                 x: 10,
                 y: 6,
@@ -488,15 +518,20 @@ export class Game {
             height: 1,
             image: IMAGE_NAMES.npc2,
             collision: {
-                x0: 10,
-                y0: 6,
-                width: 1,
-                height: 1,
+                x0: 10.25,
+                y0: 6.25,
+                width: 0.5,
+                height: 0.5,
             }
         }
+        let npc2i = new NPC(this, npc2, {
+            fairTrade: ["I’m really glad Fairtrade has a minimum buy price safety net for us.","And when the market price jumps higher, we get that, too!"],
+            nonFairTrade: ["I hope the price of coffee doesn’t drop too much...", "I barely made it through the last recession."],
+        });
+        npc2.interaction = npc2i;
         gameObjects.push(npc2);
 
-        let npc3 = {
+        let npc3: GameObject = {
             location: {
                 x: 8,
                 y: 3,
@@ -505,13 +540,28 @@ export class Game {
             height: 1,
             image: IMAGE_NAMES.npc3,
             collision: {
-                x0: 8,
-                y0: 3,
-                width: 1,
-                height: 1,
+                x0: 8.25,
+                y0: 3.25,
+                width: 0.5,
+                height: 0.5,
             }
         }
+        let npc3i = new NPC(this, npc3, {
+            fairTrade: ["It feels good to have access to international markets through Fairtrade’s help.","I finally feel that my job is making a difference of sorts."],
+            nonFairTrade: ["I heard people outside of our country pay good money for coffee beans.", "We could never sell for that much here."],
+        });
+        npc3.interaction = npc3i;
         gameObjects.push(npc3);
+
+//         NPCs being sad
+// -	“Another day of barely scraping by. It’s impossible to save money under these conditions…”
+// -	“I hope the price of coffee doesn’t drop too much… I barely made it through the last recession.”
+// -	“I heard people outside of our country pay good money for coffee beans. We could never sell for that much here.”
+// NPCs being happy
+// -	“With Fairtrade’s bonus premiums, we can finally start investing back into our farm and in our children’s educations!”
+// -	“I’m really glad Fairtrade has a minimum buy price safety net for us. And when the market price jumps higher, we get that, too!”
+// -	“It feels good to have access to international markets through Fairtrade’s help. I finally feel that my job is making a difference of sorts.”
+// -	“Every month we get to vote on what to invest our profits in. I can’t wait to see our town grow!”
 
         this.gameObjects = gameObjects;
     }
