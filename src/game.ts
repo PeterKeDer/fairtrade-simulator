@@ -8,6 +8,8 @@ export type Point = {
 export type Player = {
     location: Point,
     facingDirection: 'front' | 'back' | 'left' | 'right',
+    shakeAnimation?: number,
+    isWatering: boolean,
 };
 
 export type Movement = {
@@ -22,13 +24,95 @@ export type Zone = {
     height: number,
 }
 
+export interface Interactable {
+    location: Point,
+    width: number,
+    height: number,
+    onInteract: () => void,
+};
+
 export type GameObject = {
     location: Point,
     width: number,
     height: number,
     image: string,
     collision?: Zone,
+    interaction?: Interactable,
 };
+
+class CoffeePlant implements Interactable {
+    location: Point;
+    width: number;
+    height: number;
+    state: 'unharvested' | 'harvested' | 'watered';
+
+    constructor(private game: Game, private object: GameObject) {
+        this.state = 'unharvested';
+        this.location = {
+            x: object.location.x - 0.5,
+            y: object.location.y,
+        }
+        this.width = 2;
+        this.height = 1;
+    }
+
+    onInteract() {
+        switch (this.state) {
+            case 'unharvested':
+                this.state = 'harvested';
+                this.game.numHarvestedCoffee++;
+                this.object.image = IMAGE_NAMES.coffeePlant;
+                this.game.startPlayerShaking();
+                break;
+            case 'harvested':
+                // TODO: change tile
+                this.state = 'watered';
+                this.game.player.isWatering = true;
+                this.game.startPlayerShaking();
+                break;
+            case 'watered':
+                break;
+        }
+    }
+}
+
+class CoffeeRack implements Interactable {
+    location: Point;
+    width: number;
+    height: number;
+    state: 'empty' | 'drying' | 'dried';
+
+    constructor(private game: Game, private object: GameObject) {
+        this.state = 'empty';
+        this.location = {
+            x: object.location.x - 0.5,
+            y: object.location.y - 0.5,
+        }
+        this.width = 2;
+        this.height = 2;
+    }
+
+    onInteract() {
+        switch (this.state) {
+            case 'empty':
+                if (this.game.numHarvestedCoffee >= 4) {
+                    this.game.numHarvestedCoffee -= 4;
+                    this.state = 'drying';
+                    this.object.image = IMAGE_NAMES.coffeeRackDrying;
+                    this.game.startPlayerShaking();
+                }
+                break;
+            case 'drying':
+                break;
+            case 'dried':
+                this.game.numDriedCoffee += 4;
+                this.state = 'empty';
+                this.object.image = IMAGE_NAMES.coffeeRack;
+                this.game.startPlayerShaking();
+                break;
+        }
+    }
+}
 
 export class Game {
     public player: Player = {
@@ -37,8 +121,12 @@ export class Game {
             y: 1,
         },
         facingDirection: 'front',
+        isWatering: false,
     };
     public gameObjects: Array<GameObject>;
+
+    public numHarvestedCoffee: number = 0;
+    public numDriedCoffee: number = 0;
 
     constructor() {
         this.populateGameObjectsArray();
@@ -70,38 +158,69 @@ export class Game {
         return false;
     }
 
-    // Process player movement
-    public process(movement: Movement) {
-        let { dx, dy } = movement;
+    /// Process player movement
+    public process(movement: Movement, interact: boolean) {
+        // TODO: probably add cooldown to interaction? where player is locked in place
+        if (this.player.shakeAnimation !== undefined) {
+            this.player.shakeAnimation += 0.2 * Math.PI;
+            if (this.player.shakeAnimation > 6 * Math.PI) {
+                this.player.shakeAnimation = undefined;
+                this.player.isWatering = false;
+            }
 
-        if (dx === 1 && dy === 0 || dx === 1 && this.player.facingDirection === 'right') {
-            this.player.facingDirection = 'right';
-        } else if (dx === -1 && dy === 0 || dx === -1 && this.player.facingDirection === 'left') {
-            this.player.facingDirection = 'left';
-        } else if (dx === 0 && dy === 1 || dy === 1 && this.player.facingDirection === 'front') {
-            this.player.facingDirection = 'front';
-        } else if (dx === 0 && dy === -1 || dy === -1 && this.player.facingDirection === 'back') {
-            this.player.facingDirection = 'back';
-        }
+        } else if (interact) {
+            const playerCenterX = this.player.location.x + 0.5;
+            const playerCenterY = this.player.location.y + 0.5;
+            for (let obj of this.gameObjects) {
+                if (obj.interaction !== undefined) {
+                    const interaction = obj.interaction;
+                    if (interaction.location.x <= playerCenterX &&
+                        playerCenterX <= interaction.location.x + interaction.width &&
+                        interaction.location.y <= playerCenterY &&
+                        playerCenterY <= interaction.location.y + interaction.height
+                    ) {
+                        interaction.onInteract();
+                        break;
+                    }
+                }
+            }
 
-        if (Math.abs(dx) !== 0 && Math.abs(dy) !== 0) {
-            dx /= Math.SQRT2;
-            dy /= Math.SQRT2;
-        }
-
-        var next = {
-            x: this.player.location.x + dx * PLAYER_SPEED,
-            y: this.player.location.y + dy * PLAYER_SPEED,
-        }
-
-        if (!this.illegalStep(next)) {
-            // console.log("Move");
-            this.player.location.x = next.x;
-            this.player.location.y = next.y;
         } else {
-            console.log("Illegal step!");
-        }
+            // Move
+            let { dx, dy } = movement;
 
+            if (dx === 1 && dy === 0 || dx === 1 && this.player.facingDirection === 'right') {
+                this.player.facingDirection = 'right';
+            } else if (dx === -1 && dy === 0 || dx === -1 && this.player.facingDirection === 'left') {
+                this.player.facingDirection = 'left';
+            } else if (dx === 0 && dy === 1 || dy === 1 && this.player.facingDirection === 'front') {
+                this.player.facingDirection = 'front';
+            } else if (dx === 0 && dy === -1 || dy === -1 && this.player.facingDirection === 'back') {
+                this.player.facingDirection = 'back';
+            }
+
+            if (Math.abs(dx) !== 0 && Math.abs(dy) !== 0) {
+                dx /= Math.SQRT2;
+                dy /= Math.SQRT2;
+            }
+
+            var next = {
+                x: this.player.location.x + dx * PLAYER_SPEED,
+                y: this.player.location.y + dy * PLAYER_SPEED,
+            }
+
+            if (!this.illegalStep(next)) {
+                // console.log("Move");
+                this.player.location.x = next.x;
+                this.player.location.y = next.y;
+            } else {
+                console.log("Illegal step!");
+            }
+        }
+    }
+
+    public startPlayerShaking() {
+        this.player.shakeAnimation = 0;
     }
 
     private populateGameObjectsArray() {
@@ -127,29 +246,31 @@ export class Game {
         // add coffee plants
         for (let i = 4; i <= 8; i += 2) {
             for (let j = 9; j < 17; j++) {
-                let plant = {
+                let obj: GameObject = {
                     location: {
                         x: i,
                         y: j,
                     },
                     width: 1,
                     height: 1,
-                    image: IMAGE_NAMES.coffeePlant,
+                    image: IMAGE_NAMES.coffeePlantBerries,
                     collision: {
                         x0: i + 0.1,
                         y0: j + 0.25,
                         width: 0.8,
                         height: 0.5,
                     }
-                }
-                gameObjects.push(plant);
+                };
+                const coffeePlant = new CoffeePlant(this, obj);
+                obj.interaction = coffeePlant;
+                gameObjects.push(obj);
             }
         }
 
         // add coffee bean dryers
         for (let i = 11; i <= 14; i += 3) {
             for (let j = 6; j <= 9; j += 3) {
-                let dryer = {
+                let obj: GameObject = {
                     location: {
                         x: i,
                         y: j,
@@ -163,8 +284,10 @@ export class Game {
                         width: 0.7,
                         height: 0.8,
                     }
-                }
-                gameObjects.push(dryer);
+                };
+                const coffeeRack = new CoffeeRack(this, obj);
+                obj.interaction = coffeeRack;
+                gameObjects.push(obj);
             }
         }
 
@@ -204,7 +327,7 @@ export class Game {
             gameObjects.push(fenceBot);
         }
 
-        
+
         // add side fences
         for (let i = 0; i < MAP_HEIGHT; i += 1) {
             let fenceLeft = {

@@ -20,7 +20,8 @@ function render() {
 
     // Move player
     const movement = controller.getMovement();
-    game.process(movement);
+    const interact = controller.getInteract();
+    game.process(movement, interact);
 
     const playerPosition = calculatePlayerPosition(game.player.location);
 
@@ -76,45 +77,66 @@ function render() {
         context.drawImage(image, x, y, maxX - x, maxY - y);
     }
 
+    // FOR DEBUGGING PURPOSES
+    // for (let obj of game.gameObjects) {
+    //     // TODO: remove this later
+    //     if (obj.collision === undefined) {
+    //         continue;
+    //     }
+
+    //     let { x, y } = calculatePosition({ x: obj.collision.x0, y: obj.collision.y0 });
+    //     let { x: maxX, y: maxY } = calculatePosition({
+    //         x: obj.collision.x0 + obj.collision.width,
+    //         y: obj.collision.y0 + obj.collision.height,
+    //     });
+
+    //     context.lineWidth = 4;
+    //     context.strokeStyle = "red";
+    //     context.beginPath();
+    //     context.rect(x, y, maxX - x, maxY - y);
+    //     context.stroke();
+    // }
+
     // Draw player
     let imageName;
-    switch (game.player.facingDirection) {
-        case 'front':
-            imageName = IMAGE_NAMES.farmerFront;
-            break;
-        case 'back':
-            imageName = IMAGE_NAMES.farmerBack;
-            break;
-        case 'left':
-            imageName = IMAGE_NAMES.farmerLeft;
-            break;
-        case 'right':
-            imageName = IMAGE_NAMES.farmerRight;
-            break;
-    }
-    context.imageSmoothingEnabled = false;
-    context.drawImage(images[imageName], playerPosition.x, playerPosition.y, GRID_WIDTH, GRID_WIDTH);
-
-    // FOR DEBUGGING PURPOSES
-    for (let obj of game.gameObjects) {
-        // TODO: remove this later
-        if (obj.collision === undefined) {
-            continue;
+    if (!game.player.isWatering) {
+        switch (game.player.facingDirection) {
+            case 'front':
+                imageName = IMAGE_NAMES.farmerFront;
+                break;
+            case 'back':
+                imageName = IMAGE_NAMES.farmerBack;
+                break;
+            case 'left':
+                imageName = IMAGE_NAMES.farmerLeft;
+                break;
+            case 'right':
+                imageName = IMAGE_NAMES.farmerRight;
+                break;
         }
-
-        let { x, y } = calculatePosition({ x: obj.collision.x0, y: obj.collision.y0 });
-        let { x: maxX, y: maxY } = calculatePosition({
-            x: obj.collision.x0 + obj.collision.width,
-            y: obj.collision.y0 + obj.collision.height,
-        });
-
-        context.lineWidth = 4;
-        context.strokeStyle = "red";
-        context.beginPath();
-        context.rect(x, y, maxX - x, maxY - y);
-        context.stroke();
+    } else {
+        switch (game.player.facingDirection) {
+            case 'front':
+                imageName = IMAGE_NAMES.farmerWaterFront;
+                break;
+            case 'back':
+                imageName = IMAGE_NAMES.farmerWaterBack;
+                break;
+            case 'left':
+                imageName = IMAGE_NAMES.farmerWaterLeft;
+                break;
+            case 'right':
+                imageName = IMAGE_NAMES.farmerWaterRight;
+                break;
+        }
     }
 
+    context.imageSmoothingEnabled = false;
+    if (game.player.shakeAnimation === undefined) {
+        context.drawImage(images[imageName], playerPosition.x, playerPosition.y, GRID_WIDTH, GRID_WIDTH);
+    } else {
+        context.drawImage(images[imageName], playerPosition.x, playerPosition.y + GRID_WIDTH * 0.03 * Math.sin(game.player.shakeAnimation), GRID_WIDTH, GRID_WIDTH);
+    }
 }
 
 /// Calculate the player's current position on the canvas, from the grid location
