@@ -21,7 +21,6 @@ export class Game {
             y: 0,
         },
     };
-    public time: number = 0;
 
     /// Process player movement
     public process(movement: Movement) {
