@@ -157,21 +157,6 @@ function render() {
         context.fillRect(0, 0, canvas.width, canvas.height);
     }
 
-
-    // Render top navigation
-    context.beginPath();
-    context.rect(0, 0, canvas.width, TOP_BAR_HEIGHT);
-    context.fillStyle = '#b47433';
-    context.fill();
-
-    context.drawImage(images[IMAGE_NAMES.interfaceCoffeeBean], canvas.width - 2 * GRID_WIDTH, 0, TOP_BAR_HEIGHT, TOP_BAR_HEIGHT);
-    context.drawImage(images[IMAGE_NAMES.interfaceCoin], canvas.width - 5 * GRID_WIDTH, 5, TOP_BAR_HEIGHT, TOP_BAR_HEIGHT-10);
-
-    context.font = "30px Arial";
-    context.fillText("2", canvas.width - 2 * GRID_WIDTH + TOP_BAR_HEIGHT, 0);
-    context.fillText("10", canvas.width - 5 * GRID_WIDTH + TOP_BAR_HEIGHT, 0);
-
-
 }
 
 /// Calculate the player's current position on the canvas, from the grid location
