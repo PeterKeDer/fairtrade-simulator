@@ -232,11 +232,11 @@ export class Game {
                 y: 2,
             },
             width: 6,
-            height: 4,
+            height: 3,
             image: IMAGE_NAMES.house,
             collision: {
                 x0: 2,
-                y0: 3,
+                y0: 2,
                 width: 6,
                 height: 3,
             }

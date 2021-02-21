@@ -7,7 +7,7 @@ export const GRID_WIDTH = 128;
 
 // TODO: add all images
 export const IMAGE_NAMES = {
-    house: 'house.webp',
+    house: 'house.png',
     coffeePlant: 'coffee/coffee_plant.png',
     coffeePlantBerries: 'coffee/coffee_plant_berries.png',
     coffeeRack: 'coffee/coffee_rack.png',
