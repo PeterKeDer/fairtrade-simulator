@@ -225,6 +225,39 @@ export class Game {
 
     private populateGameObjectsArray() {
         let gameObjects: Array<GameObject> = [];
+        // add background tiles (game board 30 x 20)
+        // grass
+        for (let i = 0; i <= 30; i++) {
+            for (let j = 0; j <= 20; j++) {
+                let grass = {
+                    location: {
+                        x: i,
+                        y: j,
+                    },
+                    width: 1,
+                    height: 1,
+                    image: IMAGE_NAMES.textureGrass
+                }
+                gameObjects.push(grass);
+            }
+        }
+
+        // dirt
+        for (let i = 4; i <= 8; i += 2) {
+            for (let j = 9; j < 17; j++) {
+                let dirt = {
+                    location: {
+                        x: i,
+                        y: j,
+                    },
+                    width: 1,
+                    height: 1,
+                    image: IMAGE_NAMES.textureDirt,
+                };
+                gameObjects.push(dirt);
+            }
+        }
+
         // add house
         let house = {
             location: {
