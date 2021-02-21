@@ -94,6 +94,27 @@ function render() {
     }
     context.imageSmoothingEnabled = false;
     context.drawImage(images[imageName], playerPosition.x, playerPosition.y, GRID_WIDTH, GRID_WIDTH);
+
+    // FOR DEBUGGING PURPOSES
+    for (let obj of game.gameObjects) {
+        // TODO: remove this later
+        if (obj.collision === undefined) {
+            continue;
+        }
+
+        let { x, y } = calculatePosition({ x: obj.collision.x0, y: obj.collision.y0 });
+        let { x: maxX, y: maxY } = calculatePosition({
+            x: obj.collision.x0 + obj.collision.width,
+            y: obj.collision.y0 + obj.collision.height,
+        });
+
+        context.lineWidth = 4;
+        context.strokeStyle = "red";
+        context.beginPath();
+        context.rect(x, y, maxX - x, maxY - y);
+        context.stroke();
+    }
+
 }
 
 /// Calculate the player's current position on the canvas, from the grid location

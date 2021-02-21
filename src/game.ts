@@ -1,4 +1,4 @@
-import { PLAYER_SPEED, IMAGE_NAMES } from "./constants";
+import { PLAYER_SIZE, PLAYER_SPEED, IMAGE_NAMES } from "./constants";
 
 export type Point = {
     x: number,
@@ -15,11 +15,19 @@ export type Movement = {
     dy: number,
 };
 
+export type Zone = {
+    x0: number,
+    y0: number,
+    width: number,
+    height: number,
+}
+
 export type GameObject = {
     location: Point,
     width: number,
     height: number,
     image: string,
+    collision?: Zone,
 };
 
 export class Game {
@@ -36,7 +44,33 @@ export class Game {
         this.populateGameObjectsArray();
     }
 
-    /// Process player movement
+    // Check if the movement is legal
+    public illegalStep(target: Point) {
+        console.log(target);
+        let target_x = target.x + 0.5;
+        let target_y = target.y + 0.5;
+        for (let obj of this.gameObjects) {
+            
+            if (obj.collision === undefined) {
+                continue;
+            }
+
+            let collision_x0 = obj.collision.x0;
+            let collision_y0 = obj.collision.y0;
+            let collision_x1 = obj.collision.x0 + obj.collision.width;
+            let collision_y1 = obj.collision.y0 + obj.collision.height;
+
+            if (target_x > collision_x0 &&
+                target_x < collision_x1 &&
+                target_y > collision_y0 &&
+                target_y < collision_y1) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Process player movement
     public process(movement: Movement) {
         let { dx, dy } = movement;
 
@@ -55,8 +89,19 @@ export class Game {
             dy /= Math.SQRT2;
         }
 
-        this.player.location.x += dx * PLAYER_SPEED;
-        this.player.location.y += dy * PLAYER_SPEED;
+        var next = {
+            x: this.player.location.x + dx * PLAYER_SPEED,
+            y: this.player.location.y + dy * PLAYER_SPEED,
+        }
+
+        if (!this.illegalStep(next)){
+            // console.log("Move");
+            this.player.location.x = next.x;
+            this.player.location.y = next.y;
+        } else {
+            console.log("Illegal step!");
+        }
+
     }
 
     private populateGameObjectsArray() {
@@ -70,6 +115,12 @@ export class Game {
             width: 6,
             height: 4,
             image: IMAGE_NAMES.house,
+            collision: {
+                x0: 2,
+                y0: 3,
+                width: 6,
+                height: 3,
+            }
         };
         gameObjects.push(house);
 
@@ -84,6 +135,12 @@ export class Game {
                     width: 1,
                     height: 1,
                     image: IMAGE_NAMES.coffeePlant,
+                    collision: {
+                        x0: i + 0.1,
+                        y0: j + 0.25,
+                        width: 0.8,
+                        height: 0.5,
+                    }
                 }
                 gameObjects.push(plant);
             }
@@ -100,6 +157,12 @@ export class Game {
                     width: 1,
                     height: 1,
                     image: IMAGE_NAMES.coffeeRack,
+                    collision: {
+                        x0: i + 0.15,
+                        y0: j + 0.1,
+                        width: 0.7,
+                        height: 0.8,
+                    }
                 }
                 gameObjects.push(dryer);
             }
@@ -111,9 +174,15 @@ export class Game {
                 x: 10,
                 y: 1,
             },
-            width: 4,
-            height: 2,
-            image: "",
+            width: 6,
+            height: 3,
+            image: IMAGE_NAMES.environmentTruckFairTrade,
+            collision: {
+                x0: 10,
+                y0: 2,
+                width: 5.5,
+                height: 2,
+            }
         };
         gameObjects.push(truck);
 
