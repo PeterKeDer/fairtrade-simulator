@@ -86,7 +86,7 @@ export class Game {
                     },
                     width: 1,
                     height: 1,
-                    image: "",
+                    image: "coffee_rack_drying.png",
                 }
                 gameObjects.push(dryer);
             }

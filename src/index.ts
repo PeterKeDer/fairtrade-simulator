@@ -5,6 +5,8 @@ import { Game, Point, GameObject } from './game';
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 const context = canvas.getContext('2d');
 
+context.imageSmoothingEnabled = false;
+
 const game = new Game();
 const controller = new Controller();
 
@@ -70,6 +72,7 @@ function render() {
         }
 
         const image = images[obj.image];
+        context.imageSmoothingEnabled = false;
         context.drawImage(image, x, y, maxX - x, maxY - y);
     }
 
@@ -122,10 +125,12 @@ function calculateObjectPosition(
     };
 }
 
+// TODO: refactor to constants
 // TODO: add all images
 const imageNames = [
     'House_(tier_1).webp',
     'coffee_plant.png',
+    "coffee_rack_drying.png",
 ];
 let images: { [imageName: string]: CanvasImageSource } = {};
 
