@@ -301,7 +301,7 @@ export class Game {
         }
 
         // add coffee bean dryers
-        for (let i = 11; i <= 14; i += 3) {
+        for (let i = 11; i <= 17; i += 3) {
             for (let j = 6; j <= 9; j += 3) {
                 let obj: GameObject = {
                     location: {
@@ -451,6 +451,58 @@ export class Game {
             }
         };
         gameObjects.push(truck);
+
+        // add npcs
+        let npc1 = {
+            location: {
+                x: 3,
+                y: 11,
+            },
+            width: 1,
+            height: 1,
+            image: IMAGE_NAMES.npc1,
+            collision: {
+                x0: 3,
+                y0: 11,
+                width: 1,
+                height: 1,
+            }
+        }
+        gameObjects.push(npc1);
+
+        let npc2 = {
+            location: {
+                x: 10,
+                y: 6,
+            },
+            width: 1,
+            height: 1,
+            image: IMAGE_NAMES.npc2,
+            collision: {
+                x0: 10,
+                y0: 6,
+                width: 1,
+                height: 1,
+            }
+        }
+        gameObjects.push(npc2);
+
+        let npc3 = {
+            location: {
+                x: 8,
+                y: 3,
+            },
+            width: 1,
+            height: 1,
+            image: IMAGE_NAMES.npc3,
+            collision: {
+                x0: 8,
+                y0: 3,
+                width: 1,
+                height: 1,
+            }
+        }
+        gameObjects.push(npc3);
 
         this.gameObjects = gameObjects;
     }
