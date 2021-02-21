@@ -28,4 +28,7 @@ export const IMAGE_NAMES = {
     environmentTruckCapital: 'environment/truckCapital.png',
     environmentTruckFairTrade: 'environment/truckFairTrade.png',
     environmentRoad: 'environment/road.png',
+    textureGrass: 'textures/grass_2.png',
+    textureDirt: 'textures/ground_2.png',
+    texutreWetDirt: 'textures/watered_ground_2.png'
 };
