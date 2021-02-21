@@ -28,5 +28,8 @@ export const IMAGE_NAMES = {
     environmentTruckFairTrade: 'environment/truckFairTrade.png',
     textureGrass: 'textures/grass_2.png',
     textureDirt: 'textures/ground_2.png',
-    texutreWetDirt: 'textures/watered_ground_2.png'
+    textureWetDirt: 'textures/watered_ground_2.png',
+    npc1: 'npcs/farmer_npc1.png',
+    npc2: 'npcs/farmer_npc2.png',
+    npc3: 'npcs/farmer_npc3.png'
 };
