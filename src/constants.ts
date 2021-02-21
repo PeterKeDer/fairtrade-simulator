@@ -4,6 +4,7 @@ export const PLAYER_SPEED = 0.1;
 export const MAP_WIDTH = 30;
 export const MAP_HEIGHT = 20;
 export const GRID_WIDTH = 128;
+export const FENCE_OFF_SET = 0.5;
 
 // TODO: add all images
 export const IMAGE_NAMES = {
@@ -26,4 +27,5 @@ export const IMAGE_NAMES = {
     environmentFenceRight: 'environment/fenceR.png',
     environmentTruckCapital: 'environment/truckCapital.png',
     environmentTruckFairTrade: 'environment/truckFairTrade.png',
+    environmentRoad: 'environment/road.png',
 };
