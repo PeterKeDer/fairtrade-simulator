@@ -1,6 +1,6 @@
 import { FPS, PLAYER_SIZE, MAP_HEIGHT, MAP_WIDTH, GRID_WIDTH } from './constants';
 import { Controller } from './controller';
-import { Game, Point } from './game';
+import { Game, Point, GameObject } from './game';
 
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 const context = canvas.getContext('2d');
@@ -46,6 +46,36 @@ function render() {
         context.moveTo(from.x, from.y);
         context.lineTo(to.x, to.y);
         context.stroke();
+    }
+
+    // Draw game objects
+    // TODO: get these objects from game
+    const gameObjects: GameObject[] = [
+        {
+            location: {
+                x: 1,
+                y: 1,
+            },
+            height: 1,
+            width: 1,
+            image: 'coffee_plant',
+        },
+    ];
+
+    for (let obj of gameObjects) {
+        let { x, y } = calculatePosition(obj.location);
+        let { x: maxX, y: maxY } = calculatePosition({
+            x: obj.location.x + obj.width,
+            y: obj.location.y + obj.height,
+        });
+
+        // Check that image is inside canvas
+        if ((x > canvas.width || maxX < 0) && (y > canvas.height && maxY < 0)) {
+            continue;
+        }
+
+        const image = images[obj.image];
+        context.drawImage(image, x, y, maxX - x, maxY - y);
     }
 
     // Draw player
@@ -97,4 +127,22 @@ function calculateObjectPosition(
     };
 }
 
-setInterval(render, 1000 / FPS);
+// TODO: add all images
+const imageNames = [
+    'coffee_plant',
+];
+let images: { [imageName: string]: CanvasImageSource } = {};
+
+function loadImages(callback: () => void) {
+    let i = 0;
+    Promise.all(imageNames.map(imageName => new Promise((resolve, reject) => {
+        const image = new Image();
+        image.src = `assets/${imageName}.png`;
+        images[imageName] = image;
+
+        image.onload = () => resolve(true);
+    })))
+        .then(() => callback());
+}
+
+loadImages(() => setInterval(render, 1000 / FPS));

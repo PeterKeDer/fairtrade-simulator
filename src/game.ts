@@ -14,6 +14,13 @@ export type Movement = {
     dy: number,
 };
 
+export type GameObject = {
+    location: Point,
+    width: number,
+    height: number,
+    image: string,
+};
+
 export class Game {
     public player: Player = {
         location: {
