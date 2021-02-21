@@ -46,7 +46,7 @@ class CoffeePlant implements Interactable {
     height: number;
     state: 'unharvested' | 'harvested' | 'watered';
 
-    constructor(private game: Game, private object: GameObject) {
+    constructor(private game: Game, private object: GameObject, private dirt: GameObject) {
         this.state = 'unharvested';
         this.location = {
             x: object.location.x - 0.5,
@@ -65,8 +65,8 @@ class CoffeePlant implements Interactable {
                 this.game.startPlayerShaking();
                 break;
             case 'harvested':
-                // TODO: change tile
                 this.state = 'watered';
+                this.dirt.image = IMAGE_NAMES.texutreWetDirt;
                 this.game.player.isWatering = true;
                 this.game.startPlayerShaking();
                 break;
@@ -227,8 +227,8 @@ export class Game {
         let gameObjects: Array<GameObject> = [];
         // add background tiles (game board 30 x 20)
         // grass
-        for (let i = 0; i <= 30; i++) {
-            for (let j = 0; j <= 20; j++) {
+        for (let i = 0; i <= MAP_WIDTH; i++) {
+            for (let j = 0; j <= MAP_HEIGHT; j++) {
                 let grass = {
                     location: {
                         x: i,
@@ -242,7 +242,25 @@ export class Game {
             }
         }
 
-        // dirt
+        // add house
+        let house = {
+            location: {
+                x: 2,
+                y: 2,
+            },
+            width: 4,
+            height: 2,
+            image: IMAGE_NAMES.house,
+            collision: {
+                x0: 2,
+                y0: 2,
+                width: 4,
+                height: 2,
+            }
+        };
+        gameObjects.push(house);
+
+        // add coffee plants and dirt
         for (let i = 4; i <= 8; i += 2) {
             for (let j = 9; j < 17; j++) {
                 let dirt = {
@@ -255,30 +273,7 @@ export class Game {
                     image: IMAGE_NAMES.textureDirt,
                 };
                 gameObjects.push(dirt);
-            }
-        }
 
-        // add house
-        let house = {
-            location: {
-                x: 2,
-                y: 2,
-            },
-            width: 6,
-            height: 3,
-            image: IMAGE_NAMES.house,
-            collision: {
-                x0: 2,
-                y0: 2,
-                width: 6,
-                height: 3,
-            }
-        };
-        gameObjects.push(house);
-
-        // add coffee plants
-        for (let i = 4; i <= 8; i += 2) {
-            for (let j = 9; j < 17; j++) {
                 let obj: GameObject = {
                     location: {
                         x: i,
@@ -294,7 +289,7 @@ export class Game {
                         height: 0.5,
                     }
                 };
-                const coffeePlant = new CoffeePlant(this, obj);
+                const coffeePlant = new CoffeePlant(this, obj, dirt);
                 obj.interaction = coffeePlant;
                 gameObjects.push(obj);
             }
