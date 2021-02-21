@@ -20,7 +20,8 @@ function render() {
 
     // Move player
     const movement = controller.getMovement();
-    game.process(movement);
+    const interact = controller.getInteract();
+    game.process(movement, interact);
 
     const playerPosition = calculatePlayerPosition(game.player.location);
 
