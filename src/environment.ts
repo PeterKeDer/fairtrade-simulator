@@ -14,6 +14,12 @@ var houseImg = new Image();
 houseImg.src = 'assets/house.webp'
 var dirtImg = new Image();
 dirtImg.src = 'assets/dirt.png'
+var fenceImg = new Image();
+fenceImg.src = 'assets/fenceH.png'
+var fenceLImg = new Image();
+fenceLImg.src = 'assets/fenceL.png'
+var fenceRImg = new Image();
+fenceRImg.src = 'assets/fenceR.png'
 
 function displayHitBox(context: CanvasRenderingContext2D) {
     console.log(hitBoxArray);
@@ -46,16 +52,16 @@ export function drawTreeArray(initial_x: number, initial_y: number, context: Can
             id: 100 + i,
         }
         hitBoxArray[i] = newHitBox;
-        context.drawImage(dirtImg, x_coord, y_coord+80, 100, 30);
+        context.drawImage(dirtImg, x_coord, y_coord + 80, 100, 30);
         context.drawImage(treeImg, x_coord, y_coord, 100, 100);
-        
+
     }
     // displayHitBox(context);
 
     // context.drawImage(treeImg, 100, 100, 100, 100);
 }
 
-export function displayText(x: number, y:number, context: CanvasRenderingContext2D) {
+export function displayText(x: number, y: number, context: CanvasRenderingContext2D) {
     context.font = "80px Arial";
     let hit = checkHitBox(x, y, context);
     if (hit != -1) context.strokeText("Press[E] to harvest tree #" + hit, 300, 450);
@@ -63,6 +69,35 @@ export function displayText(x: number, y:number, context: CanvasRenderingContext
 }
 
 
-export function displayHouse(x: number, y:number, context: CanvasRenderingContext2D) {
+export function displayHouse(x: number, y: number, context: CanvasRenderingContext2D) {
     context.drawImage(houseImg, x, y, 200, 200);
 }
+
+export function displayGeneral(x: number, y: number, context: CanvasRenderingContext2D) {
+    for (let i = 0; i < 64; i++) {
+        context.drawImage(fenceImg, x+32*i, y, 64, 64);
+    }
+    // context.drawImage(fenceImg, x, y, 91, 64);
+    // context.drawImage(treeImg, x, y, 100, 100);
+    // var pat = context.createPattern(fenceImg, "repeat");
+    // context.rect(x, y, 30, 64);
+    // context.fillStyle = pat;
+    // context.fill();
+}
+
+
+export function displayFenceLeft(x: number, y: number, context: CanvasRenderingContext2D) {
+    for (let i = 0; i < 19; i++) {
+        context.drawImage(fenceLImg, x, y+64*i, 64, 64);
+    }
+    // context.drawImage(fenceImg, x, y, 91, 64);
+    // context.drawImage(treeImg, x, y, 100, 100);
+    // var pat = context.createPattern(fenceImg, "repeat");
+    // context.rect(x, y, 30, 64);
+    // context.fillStyle = pat;
+    // context.fill();
+    for (let i = 0; i < 19; i++) {
+        context.drawImage(fenceRImg, x+64*29, y+64*i, 64, 64);
+    }
+}
+

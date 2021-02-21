@@ -1,7 +1,7 @@
 import { FPS, PLAYER_SIZE, MAP_HEIGHT, MAP_WIDTH, GRID_WIDTH } from './constants';
 import { Controller } from './controller';
 import { Game, Point } from './game';
-import { drawTreeArray, displayText, displayHouse } from './environment';
+import { drawTreeArray, displayText, displayHouse, displayGeneral, displayFenceLeft } from './environment';
 
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 const context = canvas.getContext('2d');
@@ -21,12 +21,6 @@ function render() {
     const movement = controller.getMovement();
     game.process(movement);
 
-    // Draw Environment
-    
-    drawTreeArray(50, 300, context);
-    drawTreeArray(50, 400, context);
-    displayText(game.player.location.x, game.player.location.y, context);
-    displayHouse(600,-10,context);
     
     const playerPosition = calculatePlayerPosition(game.player.location);
 
@@ -34,6 +28,22 @@ function render() {
     function calculatePosition(gridLocation: Point): Point {
         return calculateObjectPosition(gridLocation, game.player.location, playerPosition);
     }
+
+    
+    var treePos = calculatePosition({x: 0, y:0})
+    // Draw Environment
+    displayGeneral(treePos.x, treePos.y, context);
+    var treePos1 = calculatePosition({x: 0, y:19})
+    displayGeneral(treePos1.x, treePos1.y, context);
+
+
+    
+    var fenceLeft = calculatePosition({x: 0, y:1})
+    displayFenceLeft(fenceLeft.x, fenceLeft.y, context);
+    // drawTreeArray(treePos.x, treePos.y, context);
+    // drawTreeArray(50, 400, context);
+    // displayText(game.player.location.x, game.player.location.y, context);
+    // displayHouse(600,-10,context);
 
     // Draw grid lines
     context.strokeStyle = 'grey';
