@@ -1,4 +1,4 @@
-import { GRID_WIDTH, PLAYER_SPEED, IMAGE_NAMES, MAP_WIDTH, MAP_HEIGHT } from "./constants";
+import { GRID_WIDTH, PLAYER_SPEED, IMAGE_NAMES, MAP_WIDTH, MAP_HEIGHT, FENCE_OFF_SET } from "./constants";
 
 export type Point = {
     x: number,
@@ -46,7 +46,7 @@ class CoffeePlant implements Interactable {
     height: number;
     state: 'unharvested' | 'harvested' | 'watered';
 
-    constructor(private game: Game, private object: GameObject) {
+    constructor(private game: Game, private object: GameObject, private dirt: GameObject) {
         this.state = 'unharvested';
         this.location = {
             x: object.location.x - 0.5,
@@ -65,8 +65,8 @@ class CoffeePlant implements Interactable {
                 this.game.startPlayerShaking();
                 break;
             case 'harvested':
-                // TODO: change tile
                 this.state = 'watered';
+                this.dirt.image = IMAGE_NAMES.textureWetDirt;
                 this.game.player.isWatering = true;
                 this.game.startPlayerShaking();
                 break;
@@ -117,8 +117,8 @@ class CoffeeRack implements Interactable {
 export class Game {
     public player: Player = {
         location: {
-            x: 1,
-            y: 1,
+            x: 25,
+            y: 5,
         },
         facingDirection: 'front',
         isWatering: false,
@@ -150,10 +150,10 @@ export class Game {
             let collision_x1 = obj.collision.x0 + obj.collision.width;
             let collision_y1 = obj.collision.y0 + obj.collision.height;
 
-            if (target_x > collision_x0 &&
-                target_x < collision_x1 &&
-                target_y > collision_y0 &&
-                target_y < collision_y1) {
+            if (target_x >= collision_x0 &&
+                target_x <= collision_x1 &&
+                target_y >= collision_y0 &&
+                target_y <= collision_y1) {
                 return true;
             }
         }
@@ -234,27 +234,60 @@ export class Game {
 
     private populateGameObjectsArray() {
         let gameObjects: Array<GameObject> = [];
+
+        // add background tiles (game board 30 x 20)
+        // grass
+        for (let i = 0; i <= MAP_WIDTH; i++) {
+            for (let j = 0; j <= MAP_HEIGHT; j++) {
+                let grass = {
+                    location: {
+                        x: i,
+                        y: j,
+                    },
+                    width: 1,
+                    height: 1,
+                    image: IMAGE_NAMES.textureGrass
+                }
+                gameObjects.push(grass);
+            }
+        }
+
         // add house
+        let houseLocation = {
+            x: 20,
+            y: 2,
+        }
         let house = {
             location: {
-                x: 2,
-                y: 2,
+                x: houseLocation.x,
+                y: houseLocation.y,
             },
-            width: 6,
-            height: 3,
+            width: 4,
+            height: 2,
             image: IMAGE_NAMES.house,
             collision: {
-                x0: 2,
-                y0: 2,
-                width: 6,
-                height: 3,
+                x0: houseLocation.x,
+                y0: houseLocation.y,
+                width: 4,
+                height: 2,
             }
         };
         gameObjects.push(house);
 
-        // add coffee plants
+        // add coffee plants and dirt
         for (let i = 4; i <= 8; i += 2) {
             for (let j = 9; j < 17; j++) {
+                let dirt = {
+                    location: {
+                        x: i,
+                        y: j,
+                    },
+                    width: 1,
+                    height: 1,
+                    image: IMAGE_NAMES.textureDirt,
+                };
+                gameObjects.push(dirt);
+
                 let obj: GameObject = {
                     location: {
                         x: i,
@@ -270,14 +303,14 @@ export class Game {
                         height: 0.5,
                     }
                 };
-                const coffeePlant = new CoffeePlant(this, obj);
+                const coffeePlant = new CoffeePlant(this, obj, dirt);
                 obj.interaction = coffeePlant;
                 gameObjects.push(obj);
             }
         }
 
         // add coffee bean dryers
-        for (let i = 11; i <= 14; i += 3) {
+        for (let i = 11; i <= 17; i += 3) {
             for (let j = 6; j <= 9; j += 3) {
                 let obj: GameObject = {
                     location: {
@@ -301,33 +334,34 @@ export class Game {
         }
 
         // add Top/Bottom fences
-        for (let i = 0; i < MAP_WIDTH; i += 1) {
+        var fence
+        for (let i = 0; i < MAP_WIDTH - 1; i += 1) {
             let fenceTop = {
                 location: {
-                    x: i,
-                    y: 0,
+                    x: i + FENCE_OFF_SET,
+                    y: FENCE_OFF_SET,
                 },
                 width: 1,
                 height: 1,
                 image: IMAGE_NAMES.environmentFenceHorizontal,
                 collision: {
-                    x0: i,
-                    y0: 0,
+                    x0: i + FENCE_OFF_SET,
+                    y0: FENCE_OFF_SET,
                     width: 1,
                     height: 1,
                 }
             }
             let fenceBot = {
                 location: {
-                    x: i,
-                    y: MAP_HEIGHT-1,
+                    x: i + FENCE_OFF_SET,
+                    y: MAP_HEIGHT - 1 - FENCE_OFF_SET,
                 },
                 width: 1,
                 height: 1,
                 image: IMAGE_NAMES.environmentFenceHorizontal,
                 collision: {
-                    x0: i,
-                    y0: MAP_HEIGHT-1,
+                    x0: i + FENCE_OFF_SET,
+                    y0: MAP_HEIGHT - 1 - FENCE_OFF_SET,
                     width: 1,
                     height: 1,
                 }
@@ -338,58 +372,146 @@ export class Game {
 
 
         // add side fences
-        for (let i = 0; i < MAP_HEIGHT; i += 1) {
+        for (let i = 4; i < MAP_HEIGHT - 1; i += 1) {
             let fenceLeft = {
                 location: {
-                    x: 0,
-                    y: i,
+                    x: FENCE_OFF_SET,
+                    y: i + FENCE_OFF_SET,
                 },
                 width: 1,
                 height: 1,
                 image: IMAGE_NAMES.environmentFenceLeft,
                 collision: {
-                    x0: 0,
-                    y0: i,
-                    width: 0.2,
-                    height: 1,
-                }
-            }
-            let fenceRight = {
-                location: {
-                    x: MAP_WIDTH-1,
-                    y: i,
-                },
-                width: 1,
-                height: 1,
-                image: IMAGE_NAMES.environmentFenceRight,
-                collision: {
-                    x0: MAP_WIDTH-0.2,
-                    y0: i,
+                    x0: FENCE_OFF_SET,
+                    y0: i + FENCE_OFF_SET,
                     width: 0.2,
                     height: 1,
                 }
             }
             gameObjects.push(fenceLeft);
+        }
+        for (let i = 0; i < MAP_HEIGHT - 1; i += 1) {
+            let fenceRight = {
+                location: {
+                    x: MAP_WIDTH - 1 - FENCE_OFF_SET,
+                    y: i + FENCE_OFF_SET,
+                },
+                width: 1,
+                height: 1,
+                image: IMAGE_NAMES.environmentFenceRight,
+                collision: {
+                    x0: MAP_WIDTH - 0.2 - FENCE_OFF_SET,
+                    y0: i + FENCE_OFF_SET,
+                    width: 0.2,
+                    height: 1,
+                }
+            }
             gameObjects.push(fenceRight);
+        }
+
+        // Placehold air wall 
+        for (let i = 1; i < 4; i += 1) {
+            let fenceLeft = {
+                location: {
+                    x: FENCE_OFF_SET,
+                    y: i + FENCE_OFF_SET,
+                },
+                width: 0,
+                height: 1,
+                image: IMAGE_NAMES.environmentFenceLeft,
+                collision: {
+                    x0: FENCE_OFF_SET,
+                    y0: i + FENCE_OFF_SET,
+                    width: 0.2,
+                    height: 1,
+                }
+            }
+            gameObjects.push(fenceLeft);
+        }
+
+        // add road
+        for (let i = 0; i < 18; i += 1) {
+            let road = {
+                location: {
+                    x: i,
+                    y: 3.5,
+                },
+                width: 1,
+                height: 1,
+                image: IMAGE_NAMES.environmentRoad,
+            };
+            gameObjects.push(road);
         }
 
         // add truck
         let truck = {
             location: {
                 x: 10,
-                y: 1,
+                y: 1.2,
             },
             width: 6,
             height: 3,
             image: IMAGE_NAMES.environmentTruckFairTrade,
             collision: {
                 x0: 10,
-                y0: 2,
+                y0: 2.2,
                 width: 5.5,
                 height: 2,
             }
         };
         gameObjects.push(truck);
+
+        // add npcs
+        let npc1 = {
+            location: {
+                x: 3,
+                y: 11,
+            },
+            width: 1,
+            height: 1,
+            image: IMAGE_NAMES.npc1,
+            collision: {
+                x0: 3,
+                y0: 11,
+                width: 1,
+                height: 1,
+            }
+        }
+        gameObjects.push(npc1);
+
+        let npc2 = {
+            location: {
+                x: 10,
+                y: 6,
+            },
+            width: 1,
+            height: 1,
+            image: IMAGE_NAMES.npc2,
+            collision: {
+                x0: 10,
+                y0: 6,
+                width: 1,
+                height: 1,
+            }
+        }
+        gameObjects.push(npc2);
+
+        let npc3 = {
+            location: {
+                x: 8,
+                y: 3,
+            },
+            width: 1,
+            height: 1,
+            image: IMAGE_NAMES.npc3,
+            collision: {
+                x0: 8,
+                y0: 3,
+                width: 1,
+                height: 1,
+            }
+        }
+        gameObjects.push(npc3);
 
         this.gameObjects = gameObjects;
     }

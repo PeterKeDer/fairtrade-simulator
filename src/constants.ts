@@ -4,6 +4,7 @@ export const PLAYER_SPEED = 0.1;
 export const MAP_WIDTH = 30;
 export const MAP_HEIGHT = 20;
 export const GRID_WIDTH = 128;
+export const FENCE_OFF_SET = 0.5;
 
 // TODO: add all images
 export const IMAGE_NAMES = {
@@ -26,4 +27,11 @@ export const IMAGE_NAMES = {
     environmentFenceRight: 'environment/fenceR.png',
     environmentTruckCapital: 'environment/truckCapital.png',
     environmentTruckFairTrade: 'environment/truckFairTrade.png',
+    environmentRoad: 'environment/road.png',
+    textureGrass: 'textures/grass_2.png',
+    textureDirt: 'textures/ground_2.png',
+    textureWetDirt: 'textures/watered_ground_2.png',
+    npc1: 'npcs/farmer_npc1.png',
+    npc2: 'npcs/farmer_npc2.png',
+    npc3: 'npcs/farmer_npc3.png'
 };
