@@ -259,8 +259,8 @@ export class Game {
             collision: {
                 x0: houseLocation.x,
                 y0: houseLocation.y,
-                width: 6,
-                height: 3,
+                width: 4,
+                height: 2,
             }
         };
         gameObjects.push(house);
