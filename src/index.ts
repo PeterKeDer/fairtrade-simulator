@@ -1,9 +1,11 @@
-import { FPS, PLAYER_SIZE, MAP_HEIGHT, MAP_WIDTH, GRID_WIDTH } from './constants';
+import { FPS, PLAYER_SIZE, MAP_HEIGHT, MAP_WIDTH, GRID_WIDTH, IMAGE_NAMES } from './constants';
 import { Controller } from './controller';
 import { Game, Point, GameObject } from './game';
 
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 const context = canvas.getContext('2d');
+
+context.imageSmoothingEnabled = false;
 
 const game = new Game();
 const controller = new Controller();
@@ -70,14 +72,28 @@ function render() {
         }
 
         const image = images[obj.image];
+        context.imageSmoothingEnabled = false;
         context.drawImage(image, x, y, maxX - x, maxY - y);
     }
 
     // Draw player
-    context.beginPath();
-    context.arc(playerPosition.x, playerPosition.y, PLAYER_SIZE / 2, 0, 2 * Math.PI);
-    context.fillStyle = 'black';
-    context.fill();
+    let imageName;
+    switch (game.player.facingDirection) {
+        case 'front':
+            imageName = IMAGE_NAMES.farmerFront;
+            break;
+        case 'back':
+            imageName = IMAGE_NAMES.farmerBack;
+            break;
+        case 'left':
+            imageName = IMAGE_NAMES.farmerLeft;
+            break;
+        case 'right':
+            imageName = IMAGE_NAMES.farmerRight;
+            break;
+    }
+    context.imageSmoothingEnabled = false;
+    context.drawImage(images[imageName], playerPosition.x, playerPosition.y, GRID_WIDTH, GRID_WIDTH);
 }
 
 /// Calculate the player's current position on the canvas, from the grid location
@@ -122,21 +138,17 @@ function calculateObjectPosition(
     };
 }
 
-// TODO: add all images
-const imageNames = [
-    'House_(tier_1).webp',
-    'coffee_plant.png',
-];
 let images: { [imageName: string]: CanvasImageSource } = {};
 
 function loadImages(callback: () => void) {
-    Promise.all(imageNames.map(imageName => new Promise((resolve, reject) => {
-        const image = new Image();
-        image.src = `assets/${imageName}`;
-        images[imageName] = image;
+    Promise.all(Object.values(IMAGE_NAMES)
+        .map(imageName => new Promise((resolve, _) => {
+            const image = new Image();
+            image.src = `assets/${imageName}`;
+            images[imageName] = image;
 
-        image.onload = () => resolve(true);
-    })))
+            image.onload = () => resolve(true);
+        })))
         .then(() => callback());
 }
 
