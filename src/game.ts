@@ -28,6 +28,11 @@ export class Game {
             y: 0,
         },
     };
+    public gameObjects: Array<GameObject>;
+
+    constructor() {
+        this.populateGameObjectsArray();
+    }
 
     /// Process player movement
     public process(movement: Movement) {
@@ -39,5 +44,66 @@ export class Game {
 
         this.player.location.x += dx * PLAYER_SPEED;
         this.player.location.y += dy * PLAYER_SPEED;
+    }
+
+    private populateGameObjectsArray() {
+        let gameObjects: Array<GameObject> = [];
+        // add house
+        let house = {
+            location: {
+                x: 2,
+                y: 2,
+            },
+            width: 6,
+            height: 4,
+            image: "House_(tier_1).webp"
+        };
+        gameObjects.push(house);
+
+        // add coffee plants
+        for (let i = 4; i <= 8; i += 2) {
+            for (let j = 9; j < 17; j++) {
+                let plant = {
+                    location: {
+                        x: i,
+                        y: j,
+                    },
+                    width: 1,
+                    height: 1,
+                    image: "coffee_plant.png",
+                }
+                gameObjects.push(plant);
+            }
+        }
+
+        // add coffee bean dryers
+        for (let i = 11; i <= 14; i += 3) {
+            for (let j = 6; j <= 9; j += 3) {
+                let dryer = {
+                    location: {
+                        x: i,
+                        y: j,
+                    },
+                    width: 1,
+                    height: 1,
+                    image: "",
+                }
+                gameObjects.push(dryer);
+            }
+        }
+
+        // add truck
+        let truck = {
+            location: {
+                x: 10,
+                y: 1,
+            },
+            width: 4,
+            height: 2,
+            image: "",
+        };
+        gameObjects.push(truck);
+
+        this.gameObjects = gameObjects;
     }
 }

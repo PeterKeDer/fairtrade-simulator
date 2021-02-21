@@ -50,19 +50,14 @@ function render() {
 
     // Draw game objects
     // TODO: get these objects from game
-    const gameObjects: GameObject[] = [
-        {
-            location: {
-                x: 1,
-                y: 1,
-            },
-            height: 1,
-            width: 1,
-            image: 'coffee_plant',
-        },
-    ];
+    // const gameObjects: GameObject[] =
 
-    for (let obj of gameObjects) {
+    for (let obj of game.gameObjects) {
+        // TODO: remove this later
+        if (obj.image === '') {
+            continue;
+        }
+
         let { x, y } = calculatePosition(obj.location);
         let { x: maxX, y: maxY } = calculatePosition({
             x: obj.location.x + obj.width,
@@ -129,15 +124,15 @@ function calculateObjectPosition(
 
 // TODO: add all images
 const imageNames = [
-    'coffee_plant',
+    'House_(tier_1).webp',
+    'coffee_plant.png',
 ];
 let images: { [imageName: string]: CanvasImageSource } = {};
 
 function loadImages(callback: () => void) {
-    let i = 0;
     Promise.all(imageNames.map(imageName => new Promise((resolve, reject) => {
         const image = new Image();
-        image.src = `assets/${imageName}.png`;
+        image.src = `assets/${imageName}`;
         images[imageName] = image;
 
         image.onload = () => resolve(true);
