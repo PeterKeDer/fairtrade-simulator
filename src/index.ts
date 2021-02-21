@@ -1,6 +1,6 @@
 import { FPS, PLAYER_SIZE, MAP_HEIGHT, MAP_WIDTH, GRID_WIDTH } from './constants';
 import { Controller } from './controller';
-import { Game, Point } from './game';
+import { Game, GameObject, Point } from './game';
 
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 const context = canvas.getContext('2d');
