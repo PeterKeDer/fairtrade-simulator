@@ -1,4 +1,4 @@
-import { PLAYER_SPEED } from "./constants";
+import { PLAYER_SPEED, IMAGE_NAMES } from "./constants";
 
 export type Point = {
     x: number,
@@ -7,6 +7,7 @@ export type Point = {
 
 export type Player = {
     location: Point,
+    facingDirection: 'front' | 'back' | 'left' | 'right',
 };
 
 export type Movement = {
@@ -27,6 +28,7 @@ export class Game {
             x: 0,
             y: 0,
         },
+        facingDirection: 'front',
     };
     public gameObjects: Array<GameObject>;
 
@@ -37,6 +39,17 @@ export class Game {
     /// Process player movement
     public process(movement: Movement) {
         let { dx, dy } = movement;
+
+        if (dx === 1 && dy === 0 || dx === 1 && this.player.facingDirection === 'right') {
+            this.player.facingDirection = 'right';
+        } else if (dx === -1 && dy === 0 || dx === -1 && this.player.facingDirection === 'left') {
+            this.player.facingDirection = 'left';
+        } else if (dx === 0 && dy === 1 || dy === 1 && this.player.facingDirection === 'front') {
+            this.player.facingDirection = 'front';
+        } else if (dx === 0 && dy === -1 || dy === -1 && this.player.facingDirection === 'back') {
+            this.player.facingDirection = 'back';
+        }
+
         if (Math.abs(dx) !== 0 && Math.abs(dy) !== 0) {
             dx /= Math.SQRT2;
             dy /= Math.SQRT2;
@@ -56,7 +69,7 @@ export class Game {
             },
             width: 6,
             height: 4,
-            image: "House_(tier_1).webp"
+            image: IMAGE_NAMES.house,
         };
         gameObjects.push(house);
 
@@ -70,7 +83,7 @@ export class Game {
                     },
                     width: 1,
                     height: 1,
-                    image: "coffee_plant.png",
+                    image: IMAGE_NAMES.coffeePlant,
                 }
                 gameObjects.push(plant);
             }
@@ -86,7 +99,7 @@ export class Game {
                     },
                     width: 1,
                     height: 1,
-                    image: "coffee_rack_drying.png",
+                    image: IMAGE_NAMES.coffeeRack,
                 }
                 gameObjects.push(dryer);
             }
