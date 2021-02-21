@@ -125,6 +125,8 @@ export class Game {
     };
     public gameObjects: Array<GameObject>;
 
+    public dialogues: string[] = ['very cool', 'dialogue tests', 'xd'];
+
     public numHarvestedCoffee: number = 0;
     public numDriedCoffee: number = 0;
 
@@ -160,6 +162,13 @@ export class Game {
 
     /// Process player movement
     public process(movement: Movement, interact: boolean) {
+        if (this.dialogues.length > 0) {
+            if (interact) {
+                this.dialogues.splice(0, 1);
+            }
+            return;
+        }
+
         // TODO: probably add cooldown to interaction? where player is locked in place
         if (this.player.shakeAnimation !== undefined) {
             this.player.shakeAnimation += 0.2 * Math.PI;

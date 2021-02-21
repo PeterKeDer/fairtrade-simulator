@@ -11,6 +11,7 @@ export class Controller {
     constructor() {
         document.addEventListener('keydown', this.onKeyDown);
         document.addEventListener('keyup', this.onKeyUp);
+        document.addEventListener('mouseup', this.onMouseUp)
     }
 
     public getMovement(): Movement {
@@ -67,5 +68,9 @@ export class Controller {
                 this.keyEPressed = true;
                 break;
         }
+    }
+
+    onMouseUp = (_: MouseEvent) => {
+        this.keyEPressed = true;
     }
 }

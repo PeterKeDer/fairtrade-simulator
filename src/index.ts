@@ -137,6 +137,19 @@ function render() {
     } else {
         context.drawImage(images[imageName], playerPosition.x, playerPosition.y + GRID_WIDTH * 0.03 * Math.sin(game.player.shakeAnimation), GRID_WIDTH, GRID_WIDTH);
     }
+
+    if (game.dialogues.length > 0) {
+        const margin = 30;
+        const startY = 0.8 * canvas.height;
+        context.fillStyle = 'white';
+        context.fillRect(margin, startY, canvas.width - 2 * margin, canvas.height - margin - startY);
+        context.strokeStyle = '10px solid black';
+        context.strokeRect(margin, startY, canvas.width - 2 * margin, canvas.height - startY - margin);
+
+        context.font = '24px "Press Start 2P"';
+        context.fillStyle = 'black';
+        context.fillText(game.dialogues[0], 2 * margin, startY + 2 * margin, canvas.width - 4 * margin);
+    }
 }
 
 /// Calculate the player's current position on the canvas, from the grid location
