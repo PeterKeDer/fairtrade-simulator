@@ -1,20 +1,12 @@
-const fps = 60;
+import { FPS, PLAYER_SIZE } from './constants';
+import { Controller } from './controller';
+import { Game } from './game';
 
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 const context = canvas.getContext('2d');
 
-const PLAYER_SIZE = 10;
-const PLAYER_SPEED = 2;
-
-let keyWDown = false;
-let keyADown = false;
-let keySDown = false;
-let keyDDown = false;
-
-let playerLocation = {
-    x: 0,
-    y: 0,
-};
+const game = new Game();
+const controller = new Controller();
 
 function render() {
     // Clear canvas
@@ -25,68 +17,14 @@ function render() {
     canvas.height = window.innerHeight;
 
     // Move player
-    let dx = 0;
-    let dy = 0;
-    if (keyWDown) dy -= PLAYER_SPEED;
-    if (keySDown) dy += PLAYER_SPEED;
-    if (keyADown) dx -= PLAYER_SPEED;
-    if (keyDDown) dx += PLAYER_SPEED;
-    if (Math.abs(dx) !== 0 && Math.abs(dy) !== 0) {
-        dx /= Math.SQRT2;
-        dy /= Math.SQRT2;
-    }
+    const movement = controller.getMovement();
+    game.process(movement);
 
-    playerLocation.x += dx;
-    playerLocation.y += dy;
-
+    // Draw player
     context.beginPath();
-    context.arc(playerLocation.x, playerLocation.y, PLAYER_SIZE, 0, 2 * Math.PI);
+    context.arc(game.player.location.x, game.player.location.y, PLAYER_SIZE, 0, 2 * Math.PI);
     context.fillStyle = 'black';
     context.fill();
 }
 
-function setKeybindings() {
-    document.addEventListener('keydown', onKeyDown);
-    document.addEventListener('keyup', onKeyUp);
-}
-
-function onKeyDown(event: KeyboardEvent) {
-    switch (event.key) {
-        case 'w':
-            keyWDown = true;
-            break;
-        case 'a':
-            keyADown = true;
-            break;
-        case 's':
-            keySDown = true;
-            break;
-        case 'd':
-            keyDDown = true;
-            break;
-    }
-}
-
-function onKeyUp(event: KeyboardEvent) {
-    switch (event.key) {
-        case 'w':
-            keyWDown = false;
-            break;
-        case 'a':
-            keyADown = false;
-            break;
-        case 's':
-            keySDown = false;
-            break;
-        case 'd':
-            keyDDown = false;
-            break;
-    }
-}
-
-function initialize() {
-    setKeybindings();
-}
-
-initialize();
-setInterval(render, 1000 / fps);
+setInterval(render, 1000 / FPS);
